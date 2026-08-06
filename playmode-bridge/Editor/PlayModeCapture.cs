@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Dilander.PlayModeMarker
+namespace WafflePlate.PlayModeBridge
 {
     /// <summary>
     /// リクエストファイルを検出したら Game View を PNG に書き出す。
@@ -14,9 +14,9 @@ namespace Dilander.PlayModeMarker
     /// Play 中の Game View をそのまま撮る ScreenCapture に寄せている。
     ///
     /// やり取りは全部ファイル。リモート側は Write と Read だけで完結する。
-    ///   要求: Library/PlayModeMarker/capture.request     （中身に 1〜4 を書くと superSize 指定）
-    ///   結果: Library/PlayModeMarker/capture.result.json
-    ///   画像: Library/PlayModeMarker/latest.png          （成功時のみ存在する）
+    ///   要求: Library/PlayModeBridge/capture.request     （中身に 1〜4 を書くと superSize 指定）
+    ///   結果: Library/PlayModeBridge/capture.result.json
+    ///   画像: Library/PlayModeBridge/latest.png          （成功時のみ存在する）
     /// </remarks>
     [InitializeOnLoad]
     static class PlayModeCapture
@@ -44,7 +44,7 @@ namespace Dilander.PlayModeMarker
             EditorApplication.update += OnUpdate;
         }
 
-        static string Dir => PlayModeMarkerPaths.Directory;
+        static string Dir => PlayModeBridgePaths.Directory;
         static string RequestPath => Path.Combine(Dir, k_RequestName);
         static string ResultPath => Path.Combine(Dir, k_ResultName);
         static string ImagePath => Path.Combine(Dir, k_ImageName);

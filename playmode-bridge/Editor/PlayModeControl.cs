@@ -4,7 +4,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace Dilander.PlayModeMarker
+namespace WafflePlate.PlayModeBridge
 {
     /// <summary>
     /// リクエストファイルを検出したら Play Mode を終了する。
@@ -16,8 +16,8 @@ namespace Dilander.PlayModeMarker
     /// <c>EditorApplication.update</c> から呼ぶのでガードにもフォーカス状態にも依存しない。
     ///
     /// やり取りは全部ファイル。リモート側は Write と Read だけで完結する。
-    ///   要求: Library/PlayModeMarker/exitplay.request
-    ///   結果: Library/PlayModeMarker/exitplay.result.json
+    ///   要求: Library/PlayModeBridge/exitplay.request
+    ///   結果: Library/PlayModeBridge/exitplay.result.json
     /// </remarks>
     [InitializeOnLoad]
     static class PlayModeControl
@@ -49,7 +49,7 @@ namespace Dilander.PlayModeMarker
             ResolvePending();
         }
 
-        static string Dir => PlayModeMarkerPaths.Directory;
+        static string Dir => PlayModeBridgePaths.Directory;
         static string RequestPath => Path.Combine(Dir, k_RequestName);
         static string ResultPath => Path.Combine(Dir, k_ResultName);
         static string PendingPath => Path.Combine(Dir, k_PendingName);

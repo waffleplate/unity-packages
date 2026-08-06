@@ -4,10 +4,10 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Dilander.PlayModeMarker
+namespace WafflePlate.PlayModeBridge
 {
     /// <summary>
-    /// Play Mode 中だけ <c>Library/PlayModeMarker/playmode.json</c> を置き、抜けたら消す。
+    /// Play Mode 中だけ <c>Library/PlayModeBridge/playmode.json</c> を置き、抜けたら消す。
     /// </summary>
     /// <remarks>
     /// リモート（スマホ）から作業するとき、Play 中かどうかを知るのに Unity MCP を経由すると
@@ -19,7 +19,6 @@ namespace Dilander.PlayModeMarker
     [InitializeOnLoad]
     static class PlayModeMarker
     {
-        const string k_DirName = "PlayModeMarker";
         const string k_FileName = "playmode.json";
 
         /// <summary>心拍の書き込み間隔（秒）。</summary>
@@ -71,7 +70,7 @@ namespace Dilander.PlayModeMarker
 
         static string GetDirectory()
         {
-            return PlayModeMarkerPaths.Directory;
+            return PlayModeBridgePaths.Directory;
         }
 
         static string GetFilePath()
@@ -96,7 +95,7 @@ namespace Dilander.PlayModeMarker
                     // 無効だとエディタ非フォーカス時に Play が止まる。リモートからは静止画しか
                     // 見えないので、読み手が原因を切り分けられるよう状態を載せる。
                     runInBackground = PlayerSettings.runInBackground,
-                    projectPath = PlayModeMarkerPaths.ProjectRoot,
+                    projectPath = PlayModeBridgePaths.ProjectRoot,
                     productName = Application.productName,
                     unityVersion = Application.unityVersion,
                     activeScene = EditorSceneManager.GetActiveScene().name,

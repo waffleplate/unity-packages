@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace Dilander.PlayModeMarker
+namespace WafflePlate.PlayModeBridge
 {
     /// <summary>
     /// マーカーと撮影結果の出力先。
@@ -10,7 +10,7 @@ namespace Dilander.PlayModeMarker
     /// Library/ 配下に置くのは、Unity 標準の .gitignore が既に除外しているため。
     /// 各リポジトリに .gitignore を1行も足さずに済む。
     /// </remarks>
-    static class PlayModeMarkerPaths
+    static class PlayModeBridgePaths
     {
         /// <summary>プロジェクトルート（Assets の親）。</summary>
         public static string ProjectRoot =>
@@ -18,6 +18,6 @@ namespace Dilander.PlayModeMarker
 
         /// <summary>出力先ディレクトリ。</summary>
         public static string Directory =>
-            Path.Combine(Path.Combine(ProjectRoot, "Library"), "PlayModeMarker");
+            Path.Combine(Path.Combine(ProjectRoot, "Library"), "PlayModeBridge");
     }
 }

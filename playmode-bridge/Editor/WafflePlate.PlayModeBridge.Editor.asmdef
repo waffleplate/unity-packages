@@ -1,6 +1,6 @@
 {
-    "name": "Dilander.PlayModeMarker.Editor",
-    "rootNamespace": "Dilander.PlayModeMarker",
+    "name": "WafflePlate.PlayModeBridge.Editor",
+    "rootNamespace": "WafflePlate.PlayModeBridge",
     "references": [],
     "includePlatforms": [
         "Editor"
