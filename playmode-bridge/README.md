@@ -23,7 +23,7 @@ Editor 拡張パッケージ。
 Unity の Package Manager から *Add package from git URL* で次を指定する。
 
 ```
-https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.0
+https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.1
 ```
 
 `manifest.json` に直接書く場合:
@@ -31,7 +31,7 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 ```json
 {
   "dependencies": {
-    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.0"
+    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.1"
   }
 }
 ```
