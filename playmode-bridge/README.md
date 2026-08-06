@@ -16,22 +16,7 @@ Editor 拡張パッケージ。
 | Game View の撮影 | 要求 `capture.request` → 結果 `capture.result.json` ＋ 画像 `latest.png` |
 | Play Mode の終了 | 要求 `exitplay.request` → 結果 `exitplay.result.json` |
 
-出力先を `Library/` にしているのは、Unity 標準の `.gitignore` が既に `Library/` を除外しているため。
-**導入したプロジェクトに `.gitignore` を1行も足さずに済む。**
-
-## 収録の基準
-
-機能を足すかどうかは、次の**両方**を満たすかで決める。
-
-1. **エディタが非フォーカス、またはコンパイル保留中でも動く必要がある**
-2. **ファイルの読み書きだけで完結する**
-
-裏を返すと、**エディタの対話的な経路（Unity MCP 等）で普通に通る操作は入れない**。
-入れ始めるとそちらの劣化コピーになり、どちらを使うべきか判断できなくなる。
-シーンやコンポーネントの編集、アセット操作はこのパッケージの領分ではない。
-
-ウィンドウの前面化やプロセスの特定のような**ホストOS側で完結する処理**も入らない。
-Unity の中で動く必要がないものは、呼び出し側のツールが持つ。
+出力先が `Library/` なので、**導入したプロジェクトに `.gitignore` を1行も足さずに済む**。
 
 ## 導入
 
@@ -51,11 +36,14 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 }
 ```
 
-タグを省くと既定ブランチのその時点のコミットに解決され、ハッシュが
-`Packages/packages-lock.json` に記録される。**タグは付けることを勧める** —
-付けないとプロジェクトごとに違うコミットへ固定され、どれがどれだか分からなくなる。
+**タグは付けることを勧める** — 省くと既定ブランチのその時点のコミットに解決され、
+プロジェクトごとに違うコミットへ固定される。
 
-要件: Unity 2021.3 以降。Editor 専用アセンブリなのでビルド成果物には含まれない。
+Editor 専用アセンブリなのでビルド成果物には含まれない。
+
+**動作確認: Unity 6000.3.21f1 (Windows)**。`package.json` の下限は 2021.3 としているが、これは
+使用している API（`EditorApplication` / `ScreenCapture` / `EditorSceneManager`）がそれ以前から
+存在することによる宣言で、古いバージョンでの実測ではない。
 
 ## 使い方
 
@@ -101,14 +89,13 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 }
 ```
 
-Scene View ではなく Game View を `ScreenCapture` で撮るので、URP のポストプロセスや UI を
-含めた実際の画面が得られる。撮る直前に Game View タブを表に出す（別タブの裏に隠れていると
-フレームが進んでいても撮影が完了しないため）。
+Scene View ではなく Game View を撮るので、URP のポストプロセスや UI を含めた実際の画面が
+得られる。撮る直前に Game View タブを表に出す（別タブの裏に隠れているとフレームが進んでいても
+撮影が完了しないため）。
 
 **`Run In Background` が無効なプロジェクトでは、エディタが非フォーカスだとフレームが進まず
 撮影は必ずタイムアウトする**（上限 10 秒）。呼び出し側でエディタを前面化してから要求すること。
-このパッケージは `PlayerSettings.runInBackground` を書き換えない — 追跡ファイルである
-`ProjectSettings.asset` を触らないため。
+このパッケージは `PlayerSettings.runInBackground` を書き換えない。
 
 ### Play Mode を終了する
 
@@ -120,10 +107,6 @@ Play 中に `.cs` を編集すると、再コンパイルが Play 終了まで�
 （Preferences の *Script Changes While Playing* = *Recompile After Finished Playing*）では
 エディタ API 経由の `ExitPlaymode` が「コンパイル中」で弾かれ、停止ボタンを人手で押すまで
 復帰できなくなる。**この経路はそこで詰まない**のが存在理由。
-
-進行中であることは `exitplay.pending` という**ファイル**に持つ。Play を抜けるとドメインリロードで
-静的フィールドが消えるため、メモリに持つと結果を書く主体が消えて呼び出し側にはタイムアウトしか
-見えなくなる。
 
 ## ライセンス
 
