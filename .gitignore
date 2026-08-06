@@ -1,0 +1,14 @@
+# --- github/gitignore の Global/Windows.gitignore をベースにしたもの ---
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- このリポジトリ固有 ---
+
+# 一時ファイル
+tmp/

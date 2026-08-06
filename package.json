@@ -1,0 +1,12 @@
+{
+  "name": "com.dilander.playmode-marker",
+  "version": "0.1.0",
+  "displayName": "Play Mode Marker",
+  "description": "Play Mode の状態・Game View の撮影・Play Mode の終了を、Library/PlayModeMarker/ 配下のファイル経由で外部から扱えるようにする Editor 拡張。エディタ API を直接叩く経路と違い、フォーカス状態やコンパイル状態に左右されない。",
+  "unity": "2021.3",
+  "license": "MIT",
+  "documentationUrl": "https://github.com/dilander/unity-playmode-marker",
+  "author": {
+    "name": "dilander"
+  }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Dilander.PlayModeMarker.Editor",
+    "rootNamespace": "Dilander.PlayModeMarker",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
