@@ -41,6 +41,14 @@ namespace WafflePlate.PlayModeBridge
 
         static PlayModeCapture()
         {
+            // アセットインポート用ワーカーでも走ってしまうため無効にする（理由は PlayModeMarker）。
+            // 防ぎたいのは要求の横取り: ワーカーが先に capture.request を消して処理すると、
+            // ワーカーは常に Play 中ではないので「Play Mode ではありません」が結果として書かれる。
+            //
+            // 一律に止めても失うものは無い。実測では -batchmode で EditorApplication.update が
+            // 回らず、ガードが無くても要求は処理されなかった（12 秒の実行中ずっと無応答）。
+            if (Application.isBatchMode) return;
+
             EditorApplication.update += OnUpdate;
         }
 
