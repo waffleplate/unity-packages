@@ -22,6 +22,32 @@
 ホストOS側で完結する処理（ウィンドウの前面化、プロセスの特定、外部サービスへのアップロード等）は、
 Unity の中で動く理由がないのでここには入らない。呼び出し側のツールが持つ。
 
+## エディタ本体以外のプロセスで動かさない
+
+`[InitializeOnLoad]` や `EditorApplication.update` は、**エディタ本体だけでなく、エディタが起動する
+アセットインポート用ワーカー（`-adb2 -batchMode` の子プロセス）でも走る**。ワーカーでは
+`EditorApplication.isPlaying` が常に false で、ワーカーのログも別ファイル
+（`Logs/AssetImportWorker<N>.log`）に出るため、本体のログを見ている限り原因が分からない。
+
+エディタ本体の状態を前提に副作用（ファイルの書き込み・削除）を持つ処理は、
+`if (Application.isBatchMode) return;` で無効にすること。
+
+起動引数（`-adb2` / `-parentPid`）でワーカーだけを狙い撃つ判定も書けるが、**採らない**。
+公開仕様ではないので検出漏れの余地があり、外したときの結果が「本体の出力を壊す」側になる。
+また `-batchMode` では `EditorApplication.update` が回らない（実測）ので、一律に止めても失うものが無い。
+
+実例: playmode-bridge v0.1.1 で、ワーカーがエディタ本体の書いたマーカーを削除していた
+（Play 中に 1.4 秒間「Play していない」と見えた）。
+
+## Play 中かどうかを静的フィールドで覚えない
+
+ドメインリロードで静的フィールドは初期値に戻る。Play の開始・終了の前後でリロードが入るかは
+プロジェクトの Enter Play Mode Settings 次第なので、**リロードを挟んでも壊れない判定**にすること。
+
+`EditorApplication.isPlaying` は `ExitingPlayMode` の時点でもまだ true である点に注意。
+「Play 中で、かつ抜け始めてもいない」は `isPlaying && isPlayingOrWillChangePlaymode` で表す
+（突入時は `isPlaying=false / willChange=true`、終了時は `isPlaying=true / willChange=false`）。
+
 ## 命名規則
 
 - **フォルダ名**: パッケージ名の末尾セグメント（例: `playmode-bridge`）

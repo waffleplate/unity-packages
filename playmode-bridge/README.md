@@ -23,7 +23,7 @@ Editor 拡張パッケージ。
 Unity の Package Manager から *Add package from git URL* で次を指定する。
 
 ```
-https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.1
+https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.2.0
 ```
 
 `manifest.json` に直接書く場合:
@@ -31,7 +31,7 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 ```json
 {
   "dependencies": {
-    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.1.1"
+    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.2.0"
   }
 }
 ```
@@ -41,6 +41,14 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 
 Editor 専用アセンブリなのでビルド成果物には含まれない。
 
+**バッチモード（`-batchMode`）では動作しない。** エディタが起動するアセットインポート用ワーカーも
+バッチモードの Unity プロセスで、そこでこのパッケージが動くとエディタ本体の出力を壊すため
+（v0.2.0 で修正、詳細は `CHANGELOG.md`）。
+
+これで失うものは無い。`-batchmode` では `EditorApplication.update` が回らず、**この制限が無くても
+要求は処理されない**（ガードを外した状態で 12 秒間実行し、要求ファイルが消費されないことを実測）。
+CI の `-batchmode -executeMethod` からは元から使えない。
+
 **動作確認: Unity 6000.3.21f1 (Windows)**。`package.json` の下限は 2021.3 としているが、これは
 使用している API（`EditorApplication` / `ScreenCapture` / `EditorSceneManager`）がそれ以前から
 存在することによる宣言で、古いバージョンでの実測ではない。
@@ -49,7 +57,8 @@ Editor 専用アセンブリなのでビルド成果物には含まれない。
 
 ### Play 中かどうかを知る
 
-`Library/PlayModeBridge/playmode.json` の有無で判定する。Play 中だけ存在する。
+`Library/PlayModeBridge/playmode.json` の有無で判定する。Play 中だけ存在する
+（ただし有無だけで即断しないこと。後述の閾値と注意を読むこと）。
 
 ```json
 {
@@ -68,6 +77,32 @@ Editor 専用アセンブリなのでビルド成果物には含まれない。
 
 `updatedAt` は 2 秒ごとに更新される**心拍**。エディタがクラッシュするとマーカーが残って
 「Play 中」と嘘をつくので、**読み手は `updatedAt` の古さで死んだマーカーを判別すること**。
+
+**閾値は 10 秒を推奨する** — `updatedAt` が現在時刻より 10 秒以上古ければ死んだマーカーと見なす。
+
+根拠は実測（Unity 6000.3.21f1 / Windows）。心拍間隔を n=199 回、約 400 秒分ぶん観測した結果は
+次のとおりで、10 秒は実測上限の約 5 倍にあたる。
+
+| 条件 | n | p50 | max |
+| --- | --- | --- | --- |
+| `Run In Background` 有効 | 161 | 2.005 | 2.012 |
+| `Run In Background` 無効 | 38 | 2.091 | 2.100 |
+
+**エディタが非フォーカスでも心拍は乱れない。** 心拍は `EditorApplication.update` に乗っており、
+Player のループを止める `Run In Background` の影響をほとんど受けない（無効時に約 90ms 遅くなるだけ）。
+これは撮影とは対照的で、撮影の方は非フォーカスだとフレームが進まず必ず失敗する（後述）。
+
+閾値を心拍間隔ぎりぎり（2〜3 秒）に詰めないこと。OS のスケジューリング・ディスク I/O・読み手自身の
+ポーリング周期がそれぞれ数百 ms 単位で効くため、生きている Play を死んだと誤判定する。
+
+#### 不在の判定は 1 回で決めない
+
+v0.2.0 未満には、Play 中にマーカーが約 1.4 秒消える不具合があった（アセットインポート用ワーカーが
+消していた。詳細は `CHANGELOG.md`）。v0.2.0 で原因を塞ぎ、加えて Play 中は 0.2 秒ごとに実ファイルを
+確認して消えていれば書き直すようにしたので、**現在は Play 中に消えることは確認されていない**。
+
+それでも、不在が意味を持つ判定をするなら **0.5 秒以上あけて 2 回以上連続で不在を確認する**ことを勧める。
+書き込みは瞬間的に行われるため、読み手のタイミング次第では過渡状態を踏み得る。
 
 ### Game View を撮る
 
