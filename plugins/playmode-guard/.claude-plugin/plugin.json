@@ -1,0 +1,5 @@
+{
+  "name": "playmode-guard",
+  "version": "0.1.0",
+  "hooks": "./hooks/hooks.json"
+}
