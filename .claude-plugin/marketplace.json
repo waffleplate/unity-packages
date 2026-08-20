@@ -1,5 +1,6 @@
 {
   "name": "unity-packages",
+  "description": "Waffle-Plate が公開する Unity 向け配布物のマーケットプレイス",
   "owner": {
     "name": "Waffle-Plate",
     "url": "https://github.com/waffleplate"
