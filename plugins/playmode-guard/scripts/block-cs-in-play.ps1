@@ -14,8 +14,12 @@
 #   Edit / Write / MultiEdit -> tool_input.file_path  (exact: any .cs target)
 #   Bash                     -> tool_input.command    (heuristic: .cs mentioned AND a write verb)
 # The Bash arm needs both signals so read-only commands that merely name .cs files
-# (grep / ls / git diff over *.cs) keep working. This stops accidents, not a determined
-# bypass - an obfuscated writer still slips through.
+# (grep / ls / git diff over *.cs) keep working. Naming an interpreter counts as a write
+# signal on its own, because a script handed to python/node/perl/ruby/powershell writes
+# without any shell write verb (a heredoc fed to python, `python -c`, `node -e`). That also
+# blocks merely reading a .cs through one of them, which is the safe side to err on: reading
+# is what Read and Grep are for. This stops accidents, not a determined bypass - an
+# obfuscated writer still slips through.
 #
 # Freshness: a crashed editor leaves the marker behind, so a marker older than 10s is treated
 # as dead. That threshold is the one recommended by the playmode-bridge README (measured
@@ -53,12 +57,15 @@ $reason = ''
 if ($filePath -match $csToken) {
     $reason = 'a .cs file edit'
 } elseif ($command -match $csToken) {
-    # Redirection covers `> x.cs`, `>> x.cs`, heredocs and `cat > x.cs`.
+    # Redirection covers `> x.cs`, `>> x.cs` and `cat > x.cs` fed by a heredoc. A heredoc
+    # on its own is `<<`, so it matches here only when paired with a redirect to the .cs.
     $redirect = '>>?\s*[^|;&<>]*' + $csToken
     $verbs = '\b(cp|mv|rm|tee|touch|rsync|install|patch|truncate|unlink)\b'
     $sedInPlace = '\bsed\b[^|;&]*\s-i'
-    if (($command -match $redirect) -or ($command -match $verbs) -or ($command -match $sedInPlace)) {
-        $reason = 'a shell command that writes a .cs file'
+    $interpreters = '\b(python3?|py|node|perl|ruby|pwsh|powershell)\b'
+    if (($command -match $redirect) -or ($command -match $verbs) -or
+        ($command -match $sedInPlace) -or ($command -match $interpreters)) {
+        $reason = 'a shell command that can write a .cs file'
     }
 }
 
