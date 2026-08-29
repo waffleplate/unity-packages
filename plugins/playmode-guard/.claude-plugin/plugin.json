@@ -1,6 +1,6 @@
 {
   "name": "playmode-guard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Unity が Play Mode の間、.cs の編集をブロックして再コンパイルのデッドロックを防ぐ（playmode-bridge のマーカーを利用）",
   "author": {
     "name": "waffle_maker"
