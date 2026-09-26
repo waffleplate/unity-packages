@@ -11,6 +11,7 @@
 - **リポジトリ**: https://github.com/waffleplate/unity-packages
 - **収録パッケージ**: [playmode-bridge](playmode-bridge) — `io.github.waffleplate.playmode-bridge`
 - **収録プラグイン**: [plugins/playmode-guard](plugins/playmode-guard) — `playmode-guard`
+- **セッションアイコン**: 📦
 
 **ここは配布物だけを置くリポジトリで、Unity プロジェクトではない。**
 `Assets/` も `ProjectSettings/` も無く、このリポジトリ単体では Unity で開けない。
