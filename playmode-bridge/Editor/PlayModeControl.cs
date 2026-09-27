@@ -62,6 +62,13 @@ namespace WafflePlate.PlayModeBridge
         static string ResultPath => Path.Combine(Dir, k_ResultName);
         static string PendingPath => Path.Combine(Dir, k_PendingName);
 
+        /// <summary>マーカーに載せる、終了要求ファイルの絶対パス。</summary>
+        /// <remarks>
+        /// 要求ファイル名の実体をここ以外に書かないための公開。マーカー側で文字列を組み立てると、
+        /// 名前を変えたときに黙って食い違う。
+        /// </remarks>
+        public static string RequestPathForReaders => RequestPath;
+
         static void OnUpdate()
         {
             if (EditorApplication.timeSinceStartup < s_NextPoll) return;

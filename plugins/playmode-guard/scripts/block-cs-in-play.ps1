@@ -84,5 +84,30 @@ try {
 
 if ($ageSeconds -gt 10) { exit 0 }  # stale marker left behind by a crashed editor
 
-[Console]::Error.WriteLine("[PlayModeGuard] Blocked $reason while Unity is in Play Mode. With deferred recompile the rebuild is held until play ends and even ExitPlaymode gets blocked, leaving the editor recoverable only by pressing Stop by hand. Stop Play Mode first, then retry.")
+# Naming the way out matters as much as the block: an agent that hits the deferred-recompile
+# deadlock and does not know about exitplay.request concludes the editor is unrecoverable and
+# asks a human to press Stop (observed twice in one morning).
+#
+# Take the path from the marker (playmode-bridge 0.3.0+ publishes it as exitRequestPath) so the
+# request file name stays defined in exactly one place. Older markers lack the field and the
+# marker can be caught half-written, so fall back to the literal name.
+$exitRequest = ''
+try {
+    # Bind the parse to its own variable: [string](...) casts the object before the property is
+    # read, so the inline form silently yields nothing.
+    $parsedMarker = Get-Content -LiteralPath $marker -Raw | ConvertFrom-Json
+    $exitRequest = [string]$parsedMarker.exitRequestPath
+} catch {
+    $exitRequest = ''
+}
+if (-not $exitRequest) { $exitRequest = Join-Path $projectDir 'Library/PlayModeBridge/exitplay.request' }
+
+# The path is quoted: project directories routinely contain spaces, and an unquoted path pasted
+# into a shell splits, so the request lands nowhere and the reader waits on a result that never
+# comes - the same dead end this message exists to prevent.
+#
+# The ownership caveat rides along because the marker records no owner: a reader told only "create
+# this file to get out" will end a Play Mode another session started (observed twice in one day,
+# once cutting short a capture in progress).
+[Console]::Error.WriteLine("[PlayModeGuard] Blocked $reason while Unity is in Play Mode. With deferred recompile the rebuild is held until play ends, and the editor's ExitPlaymode API is then rejected as 'compiling'. To leave Play Mode, create an empty file at `"$exitRequest`" - playmode-bridge acts on it outside that gate and reports to exitplay.result.json. Then retry. If you did not start this Play Mode yourself, ask the user first: the marker records no owner, so leaving it ends whatever another session is running.")
 exit 2

@@ -3,6 +3,26 @@
 このパッケージの変更履歴。書式は [Keep a Changelog](https://keepachangelog.com/ja/1.1.0/) に、
 バージョンは [Semantic Versioning](https://semver.org/lang/ja/) に従う。
 
+## [0.3.0] - 2026-09-28
+
+動作確認: Unity 6000.3.22f1 (Windows)
+
+### Added
+
+- マーカーに `exitRequestPath` を追加。Play Mode を抜けるための要求ファイルの絶対パスを載せる。
+  保留コンパイルで詰まった読み手が最初に見るのはマーカーなので、そこに脱出口を置く
+
+### Changed
+
+- README に「MCP が `COMPILATION_IN_PROGRESS` を返し続けるとき」の節を新設し、導入手順より前に
+  置いた。終了経路の説明が最終節にしか無く、詰まった側から辿れなかったため
+- 保留コンパイルは Play 中に編集しなくても起きる（Edit Mode で書かれた `.cs` が未取り込みのまま
+  残り、Play 開始で取り込まれる）ことを README に明記。`EditorApplication.isCompiling` を
+  Play 開始直前に見ても防げない
+- 脱出口を使う前に Play の所有者を確かめるよう README に明記。マーカーに所有者が無いため、
+  「抜けられる」とだけ書くと他人の Play を止める。Play を持たない側は待っても復旧しないことも
+  あわせて書いた（自力で脱出口に辿り着かず 4 分超待った実測がある）
+
 ## [0.2.0] - 2026-08-07
 
 動作確認: Unity 6000.3.21f1 (Windows)

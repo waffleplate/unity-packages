@@ -157,6 +157,7 @@ namespace WafflePlate.PlayModeBridge
                     unityVersion = Application.unityVersion,
                     activeScene = EditorSceneManager.GetActiveScene().name,
                     editorPid = System.Diagnostics.Process.GetCurrentProcess().Id,
+                    exitRequestPath = TryGetExitRequestPath(),
                     updatedAt = DateTime.Now.ToString("o")
                 };
 
@@ -167,6 +168,29 @@ namespace WafflePlate.PlayModeBridge
                 // 書けなくても Play Mode 自体は止めない。リモート側は「マーカーが無い＝Play していない」
                 // と誤読するので、原因が追えるようにログには必ず残す。
                 Debug.LogError($"[ERROR][PlayModeMarker] マーカーを書けませんでした: {e.Message}");
+            }
+        }
+
+        /// <summary>マーカーに載せる脱出口（Play Mode 終了の要求ファイル）のパス。</summary>
+        /// <remarks>
+        /// Play 中に .cs が取り込まれると再コンパイルが Play 終了まで保留され、エディタ API 経由の
+        /// ExitPlaymode も弾かれる。脱出口は PlayModeControl の要求ファイルだが、その存在を知らないと
+        /// 「詰んだ」と判断される（実例あり）。詰まった読み手が必ず見るのはマーカーなので、そこに載せる。
+        ///
+        /// 取得できなくても空にして書き進める。ここで投げると <see cref="Write"/> ごと失敗し、
+        /// マーカーが書かれない＝読み手には「Play していない」と見える。案内が欠けるより、
+        /// マーカーそのものが欠ける方が重い（Play 中の .cs 編集ガードが無言で素通しになる）。
+        /// </remarks>
+        static string TryGetExitRequestPath()
+        {
+            try
+            {
+                return PlayModeControl.RequestPathForReaders;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[WARN][PlayModeMarker] 脱出口のパスを解決できませんでした: {e.Message}");
+                return string.Empty;
             }
         }
 
@@ -195,6 +219,7 @@ namespace WafflePlate.PlayModeBridge
             public string unityVersion;
             public string activeScene;
             public int editorPid;
+            public string exitRequestPath;
             public string updatedAt;
         }
     }

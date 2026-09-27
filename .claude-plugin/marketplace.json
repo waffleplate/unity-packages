@@ -10,7 +10,7 @@
       "name": "playmode-guard",
       "source": "./plugins/playmode-guard",
       "description": "Unity が Play Mode の間、.cs の編集をブロックして再コンパイルのデッドロックを防ぐ（playmode-bridge のマーカーを利用）",
-      "version": "0.1.2"
+      "version": "0.1.3"
     }
   ]
 }

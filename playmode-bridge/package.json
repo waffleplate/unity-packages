@@ -1,6 +1,6 @@
 {
   "name": "io.github.waffleplate.playmode-bridge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "Play Mode Bridge",
   "description": "Play Mode の状態・Game View の撮影・Play Mode の終了を、Library/PlayModeBridge/ 配下のファイル経由で外部から扱えるようにする Editor 拡張。エディタ API を直接叩く経路と違い、フォーカス状態やコンパイル状態に左右されない。",
   "unity": "2021.3",

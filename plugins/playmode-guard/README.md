@@ -4,8 +4,16 @@ Unity が **Play Mode の間、`.cs` の編集をブロックする** Claude Cod
 
 Preferences の *Script Changes While Playing* が *Recompile After Finished Playing* のとき、
 Play 中に `.cs` を触ると再コンパイルが Play 終了まで保留される。この状態ではエディタ API 経由の
-`ExitPlaymode` も「コンパイル中」で弾かれ、**停止ボタンを人手で押すまで復帰できない**。
+`ExitPlaymode` も「コンパイル中」で弾かれる（Unity MCP からは `COMPILATION_IN_PROGRESS`）。
 このプラグインはその事故を、編集が起きる前に止める。
+
+入ってしまった場合は `Library/PlayModeBridge/exitplay.request` を空で作れば抜けられる
+（playmode-bridge の経路。コンパイルのゲートの外側にある）。ブロック時のメッセージにも
+このパスを出しているので、止められた側はそれを読めば復帰できる。
+
+ただし**自分が始めた Play とは限らない**。マーカーに所有者が無いので、他人が回している Play を
+止めてしまうことがある。始めた覚えが無いなら人に確認すること（詳細は
+[playmode-bridge の README](../../playmode-bridge/README.md)）。
 
 Play 中かどうかの判定には [playmode-bridge](../../playmode-bridge) が書くマーカーを使う。
 

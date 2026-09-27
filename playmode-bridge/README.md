@@ -18,12 +18,39 @@ Editor 拡張パッケージ。
 
 出力先が `Library/` なので、**導入したプロジェクトに `.gitignore` を1行も足さずに済む**。
 
+## MCP が `COMPILATION_IN_PROGRESS` を返し続けるとき
+
+Play 中に `.cs` が取り込まれると、*Script Changes While Playing* が
+*Recompile After Finished Playing* の設定では再コンパイルが Play 終了まで保留される。
+この状態では Unity MCP の呼び出しが**内容によらず**弾かれ、脱出手段の `ExitPlaymode` も
+同じゲートに掛かるため、エディタ API 経由では復帰できない。
+
+**`Library/PlayModeBridge/exitplay.request` を置けば抜けられる。** この経路は
+`EditorApplication.update` から回っていてコンパイルのゲートの外側にあり、
+保留コンパイルで張り付いた状態から復帰できる（実測 14.5 秒）。
+詳細は後述の「Play Mode を終了する」。
+
+**置く前に「自分が始めた Play か」を確かめること。** マーカーは Play の所有者を持たないので、
+同じプロジェクトを複数のセッションが開いていると、抜けさせた先が他人の撮影や計測ということが起きる。
+
+- **自分が Play を始めた** → そのまま `exitplay.request` を置いてよい
+- **自分は始めていない / 分からない** → 止めると他人の作業が終わる。停止の可否を人に確認すること。
+  ただし**待っても解けない**。保留コンパイルはプロジェクト単位でゲートを閉じるので、Play を
+  持たない側はリトライを何度重ねても復旧できず、誰かが Play を抜けるまで閉じたままになる
+  （実測では巻き添え側は脱出口に辿り着かず、Play を持っていたセッションが抜けた副作用で
+  4 分 16 秒後にようやく復旧した）
+
+**この状態は Play 中に誰も編集していなくても起きる。** Edit Mode で書かれた `.cs` が
+エディタ非フォーカスのため未取り込みで残っていると、Play 開始をきっかけに取り込みが走り、
+その分の再コンパイルが Play 終了まで保留される。Play 開始直前に
+`EditorApplication.isCompiling` を見ても、取り込みがまだ始まっていないので false のままになる。
+
 ## 導入
 
 Unity の Package Manager から *Add package from git URL* で次を指定する。
 
 ```
-https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.2.0
+https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.3.0
 ```
 
 `manifest.json` に直接書く場合:
@@ -31,7 +58,7 @@ https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode
 ```json
 {
   "dependencies": {
-    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.2.0"
+    "io.github.waffleplate.playmode-bridge": "https://github.com/waffleplate/unity-packages.git?path=/playmode-bridge#playmode-bridge-v0.3.0"
   }
 }
 ```
@@ -71,9 +98,15 @@ CI の `-batchmode -executeMethod` からは元から使えない。
   "unityVersion": "6000.3.21f1",
   "activeScene": "Main",
   "editorPid": 12345,
+  "exitRequestPath": "C:\\path\\to\\project\\Library\\PlayModeBridge\\exitplay.request",
   "updatedAt": "2026-08-06T14:28:44.1234567+09:00"
 }
 ```
+
+`exitRequestPath` は Play Mode を抜けるための要求ファイルの置き場所（v0.3.0 で追加）。
+このファイルを空で作れば Play が終わる。marker を読んだ時点で脱出口に気づけるように、
+値としても持たせている。**区切り文字は OS のもの**（Windows なら `\`）なので、
+`/` 前提でパスを分割・比較しないこと。
 
 `updatedAt` は 2 秒ごとに更新される**心拍**。エディタがクラッシュするとマーカーが残って
 「Play 中」と嘘をつくので、**読み手は `updatedAt` の古さで死んだマーカーを判別すること**。
@@ -140,8 +173,9 @@ Scene View ではなく Game View を撮るので、URP のポストプロセス
 
 Play 中に `.cs` を編集すると、再コンパイルが Play 終了まで保留される設定
 （Preferences の *Script Changes While Playing* = *Recompile After Finished Playing*）では
-エディタ API 経由の `ExitPlaymode` が「コンパイル中」で弾かれ、停止ボタンを人手で押すまで
-復帰できなくなる。**この経路はそこで詰まない**のが存在理由。
+エディタ API 経由の `ExitPlaymode` が「コンパイル中」で弾かれる。Unity MCP からは
+`COMPILATION_IN_PROGRESS` として見え、待っても解けない（Play を抜けるまで保留され続けるため）。
+**この経路はそこで詰まない**のが存在理由。
 
 ## ライセンス
 
