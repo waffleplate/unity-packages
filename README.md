@@ -1,7 +1,8 @@
 # unity-packages
 
 Waffle-Plate が公開している **Unity 向けの配布物**の置き場。
-Unity Editor 拡張パッケージ（UPM）と、それを外から使う Claude Code プラグインを収録する。
+Unity Editor 拡張パッケージ（UPM）、それを外から使う Claude Code プラグイン、
+Unity の外で動く汎用ツールを収録する。
 
 ## 収録パッケージ（UPM）
 
@@ -25,6 +26,14 @@ Unity Editor 拡張パッケージ（UPM）と、それを外から使う Claude
 /plugin marketplace add waffleplate/unity-packages
 /plugin install playmode-guard@unity-packages
 ```
+
+## 収録ツール
+
+Unity プロジェクトに何も足さずに、開発 PC の側で動く。このリポジトリを clone して使う。
+
+| フォルダ | 概要 |
+| --- | --- |
+| [tools/unity-log-keeper](tools/unity-log-keeper) | Unity の Editor / Player のログを上書き前に写し取り、日時付きファイルで長期保存する常駐ツール（Windows / macOS） |
 
 ## ライセンス
 
